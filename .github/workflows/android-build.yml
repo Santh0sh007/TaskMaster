@@ -38,8 +38,11 @@ jobs:
           if [ ! -d "android" ]; then
             npx cap add android
           fi
-          # Inject POST_NOTIFICATIONS permission for Android 13+
-          sed -i '/<application/i \    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />' android/app/src/main/AndroidManifest.xml
+          # Inject mandatory permissions for Android 13+ and vibration
+          MANIFEST="android/app/src/main/AndroidManifest.xml"
+          perl -i -pe 's/<application/    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" \/>\n    <uses-permission android:name="android.permission.VIBRATE" \/>\n    <application/' $MANIFEST
+          echo "Verified Manifest Permissions:"
+          grep "uses-permission" $MANIFEST
           npx cap sync
 
       - name: Build Android APK

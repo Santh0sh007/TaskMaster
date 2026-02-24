@@ -28,7 +28,9 @@ export const useNotifications = () => {
         try {
             if (Capacitor.isNativePlatform()) {
                 console.log('Requesting native permissions...');
-                const status = await LocalNotifications.requestPermissions();
+                const status = await LocalNotifications.requestPermissions({
+                    permissions: ['display', 'sound', 'badge']
+                });
                 console.log('Permission status:', status);
                 setPermission(status.display);
 
@@ -50,11 +52,21 @@ export const useNotifications = () => {
 
     const toggleReminders = async () => {
         if (!remindersEnabled) {
-            const granted = await requestPermission();
-            if (granted) {
+            // Force a permission check on every try
+            const currentStatus = Capacitor.isNativePlatform()
+                ? (await LocalNotifications.checkPermissions()).display
+                : Notification.permission;
+
+            if (currentStatus === 'granted') {
                 setRemindersEnabled(true);
             } else {
-                alert('Notification permission is required for reminders.');
+                console.log('Permission not granted, requesting...');
+                const granted = await requestPermission();
+                if (granted) {
+                    setRemindersEnabled(true);
+                } else {
+                    alert('FlavorTown needs notification permission to send reminders. Please enable it in your device settings.');
+                }
             }
         } else {
             setRemindersEnabled(false);
