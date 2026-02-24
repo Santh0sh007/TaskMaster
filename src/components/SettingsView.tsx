@@ -21,14 +21,15 @@ const SettingsView: React.FC = () => {
         }
     };
 
-    const handleTestNotification = () => {
-        const success = sendNotification('FlavorTown Habit Reminder', {
-            body: 'Time to crush your goals.'
-        });
+    const handleTestNotification = async () => {
+        const success = await sendNotification(
+            'FlavorTown Habit Reminder',
+            'Time to crush your goals.'
+        );
 
         if (!success) {
             if (permission !== 'granted') {
-                alert('Browser blocked the notification. Please check site permissions.');
+                alert('Notification permission not granted.');
             } else if (!remindersEnabled) {
                 alert('Enable Daily Reminders first.');
             } else {

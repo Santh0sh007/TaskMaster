@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
+import { LocalNotifications } from '@capacitor/local-notifications';
+import { Capacitor } from '@capacitor/core';
 
 export const useNotifications = () => {
-    const [permission, setPermission] = useState<NotificationPermission>(
-        typeof window !== 'undefined' && 'Notification' in window ? Notification.permission : 'default'
-    );
+    const [permission, setPermission] = useState<PermissionStatus | string>('default');
 
     const [remindersEnabled, setRemindersEnabled] = useState<boolean>(() => {
         const saved = localStorage.getItem('flavortown-reminders-enabled');
@@ -12,58 +12,68 @@ export const useNotifications = () => {
 
     useEffect(() => {
         localStorage.setItem('flavortown-reminders-enabled', remindersEnabled.toString());
-        // Sync permission on load
-        if (typeof window !== 'undefined' && 'Notification' in window) {
-            setPermission(Notification.permission);
-        }
+        checkPermission();
     }, [remindersEnabled]);
 
-    const requestPermission = async () => {
-        if (!('Notification' in window)) {
-            alert('This browser does not support desktop notifications.');
-            return false;
+    const checkPermission = async () => {
+        if (Capacitor.isNativePlatform()) {
+            const status = await LocalNotifications.checkPermissions();
+            setPermission(status.display);
+        } else if ('Notification' in window) {
+            setPermission(Notification.permission);
         }
+    };
 
-        try {
+    const requestPermission = async () => {
+        if (Capacitor.isNativePlatform()) {
+            const status = await LocalNotifications.requestPermissions();
+            setPermission(status.display);
+            return status.display === 'granted';
+        } else if ('Notification' in window) {
             const result = await Notification.requestPermission();
             setPermission(result);
             return result === 'granted';
-        } catch (error) {
-            console.error('Error requesting notification permission:', error);
-            return false;
         }
+        return false;
     };
 
     const toggleReminders = async () => {
         if (!remindersEnabled) {
-            // When turning ON, request permission
-            const status = await Notification.requestPermission();
-            setPermission(status);
-
-            if (status === 'granted') {
+            const granted = await requestPermission();
+            if (granted) {
                 setRemindersEnabled(true);
-            } else if (status === 'denied') {
-                alert('Notifications are blocked. Please enable them in browser settings.');
+            } else {
+                alert('Notification permission is required for reminders.');
             }
-            // If dismissed (default), we don't turn on
         } else {
             setRemindersEnabled(false);
         }
     };
 
-    const sendNotification = (title: string, options?: NotificationOptions) => {
-        if (!('Notification' in window)) return false;
+    const sendNotification = async (title: string, body: string) => {
+        if (!remindersEnabled) return false;
 
-        if (permission === 'granted' && remindersEnabled) {
+        if (Capacitor.isNativePlatform()) {
             try {
-                new Notification(title, {
-                    ...options,
+                await LocalNotifications.schedule({
+                    notifications: [
+                        {
+                            title,
+                            body,
+                            id: Math.floor(Math.random() * 10000),
+                            schedule: { at: new Date(Date.now() + 1000) },
+                            sound: 'default'
+                        }
+                    ]
                 });
                 return true;
             } catch (e) {
-                console.error('Failed to create notification:', e);
+                console.error('LocalNotification error:', e);
                 return false;
             }
+        } else if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification(title, { body });
+            return true;
         }
         return false;
     };
