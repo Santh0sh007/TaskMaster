@@ -1,0 +1,9 @@
+<svg width="60" height="60" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg" style="shape-rendering: crispEdges;">
+    <!-- Tree Foliage -->
+    <rect x="4" y="1" width="2" height="1" fill="#6366f1" />
+    <rect x="3" y="2" width="4" height="1" fill="#6366f1" />
+    <rect x="2" y="3" width="6" height="1" fill="#6366f1" />
+    <rect x="1" y="4" width="8" height="2" fill="#6366f1" />
+    <!-- Trunk -->
+    <rect x="4" y="6" width="2" height="3" fill="#78350f" />
+</svg>
