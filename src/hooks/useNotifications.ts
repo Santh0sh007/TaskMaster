@@ -25,14 +25,25 @@ export const useNotifications = () => {
     };
 
     const requestPermission = async () => {
-        if (Capacitor.isNativePlatform()) {
-            const status = await LocalNotifications.requestPermissions();
-            setPermission(status.display);
-            return status.display === 'granted';
-        } else if ('Notification' in window) {
-            const result = await Notification.requestPermission();
-            setPermission(result);
-            return result === 'granted';
+        try {
+            if (Capacitor.isNativePlatform()) {
+                console.log('Requesting native permissions...');
+                const status = await LocalNotifications.requestPermissions();
+                console.log('Permission status:', status);
+                setPermission(status.display);
+
+                if (status.display !== 'granted') {
+                    alert(`Permission ${status.display}. Please check app settings.`);
+                }
+                return status.display === 'granted';
+            } else if ('Notification' in window) {
+                const result = await Notification.requestPermission();
+                setPermission(result);
+                return result === 'granted';
+            }
+        } catch (error) {
+            console.error('Permission request failed:', error);
+            alert('Failed to request notification permission: ' + error);
         }
         return false;
     };

@@ -38,6 +38,8 @@ jobs:
           if [ ! -d "android" ]; then
             npx cap add android
           fi
+          # Inject POST_NOTIFICATIONS permission for Android 13+
+          sed -i '/<application/i \    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />' android/app/src/main/AndroidManifest.xml
           npx cap sync
 
       - name: Build Android APK
