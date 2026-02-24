@@ -28,9 +28,7 @@ export const useNotifications = () => {
         try {
             if (Capacitor.isNativePlatform()) {
                 console.log('Requesting native permissions...');
-                const status = await LocalNotifications.requestPermissions({
-                    permissions: ['display', 'sound', 'badge']
-                });
+                const status = await LocalNotifications.requestPermissions();
                 console.log('Permission status:', status);
                 setPermission(status.display);
 
