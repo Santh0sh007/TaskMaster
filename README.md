@@ -20,6 +20,20 @@ FlavorTown is a premium, minimalist habit tracking application designed for focu
 - **Charts**: Recharts
 - **Date Management**: date-fns
 
+## 📱 Mobile Support (Capacitor)
+
+This project is fully integrated with **Capacitor**, allowing it to run as a native Android application. It includes:
+- **Local Notifications**: Custom hook using `@capacitor/local-notifications` for daily habit reminders.
+- **Android 13+ Compliance**: Automatic permission handling for modern Android devices.
+- **Native Experience**: Glassmorphism UI optimized for fluid mobile interaction.
+
+## 🤖 CI/CD Pipeline (GitHub Actions)
+
+A robust automation pipeline is configured via [android-build.yml](.github/workflows/android-build.yml):
+- **Automated Builds**: Every push to `main` triggers a full Android APK build.
+- **Production Signing**: Automated APK signing using GitHub Secrets, generating production-ready `.apk` files.
+- **Dependency Management**: Smart handling of modern Vite/React 19 dependency resolution.
+
 ## 🚀 Getting Started
 
 1.  **Clone the repo**
